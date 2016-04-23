@@ -1,5 +1,8 @@
 ﻿using MinesweeperKata.Core;
+using MinesweeperKata.Core.Enums;
+using System.Collections.Generic;
 using Xunit;
+using Xunit.Extensions;
 
 namespace MinesweeperKata.Tests
 {
@@ -13,7 +16,7 @@ namespace MinesweeperKata.Tests
         {
             var result = FieldParser.Parse(input);
 
-            Assert.Equal(expectedLines, result.Lines);
+            Assert.Equal(expectedLines, result.NumberOfLines);
         }
 
         [Theory]
@@ -24,7 +27,36 @@ namespace MinesweeperKata.Tests
         {
             var result = FieldParser.Parse(input);
 
-            Assert.Equal(expectedColumns, result.Columns);
+            Assert.Equal(expectedColumns, result.NumberOfColumns);
+        }
+
+        [Theory, MemberData("LineData")]
+        public void ShouldParseLines(string input, Token[][] expectedLines)
+        {
+            var result = FieldParser.Parse(input);
+
+            Assert.Equal(expectedLines, result.Lines);
+        }
+
+        public static IEnumerable<object[]> LineData
+        {
+            get
+            {
+                return new[]
+                {
+                    new object[] 
+                    {
+                        "0 0\r\n*...\r\n....\r\n.*..\r\n....",
+                        new[] 
+                        {
+                            new[] { Token.Mine, Token.Blank, Token.Blank, Token.Blank },
+                            new[] { Token.Blank, Token.Blank, Token.Blank, Token.Blank },
+                            new[] { Token.Blank, Token.Mine, Token.Blank, Token.Blank },
+                            new[] { Token.Blank, Token.Blank, Token.Blank, Token.Blank },
+                        }
+                    }
+                };
+            }
         }
     }
 }
