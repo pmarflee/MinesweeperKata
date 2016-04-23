@@ -22,12 +22,22 @@ namespace MinesweeperKata.Core
     {
         public static FieldParserResult Parse(string input)
         {
-            var lines = input.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            var lines = input.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
             var firstLineElements = lines[0].Split(' ');
+            int numberOfLines = 0, numberOfColumns = 0;
+
+            if (firstLineElements.Length > 0)
+            {
+                int.TryParse(firstLineElements[0], out numberOfLines);
+            }
+            if (firstLineElements.Length > 1)
+            {
+                int.TryParse(firstLineElements[1], out numberOfColumns);
+            }
 
             return new FieldParserResult(
-                int.Parse(firstLineElements[0]), 
-                int.Parse(firstLineElements[1]),
+                numberOfLines, 
+                numberOfColumns,
                 lines.Skip(1).Select(ParseLine).ToArray());
         }
 
