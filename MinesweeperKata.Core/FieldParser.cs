@@ -6,7 +6,7 @@ namespace MinesweeperKata.Core
 {
     public class FieldParserResult
     {
-        public FieldParserResult(int numberOfLines, int numberOfColumns, Token[][] lines)
+        public FieldParserResult(int numberOfLines, int numberOfColumns, Token?[][] lines)
         {
             NumberOfLines = numberOfLines;
             NumberOfColumns = numberOfColumns;
@@ -15,7 +15,7 @@ namespace MinesweeperKata.Core
 
         public int NumberOfLines { get; private set; }
         public int NumberOfColumns { get; private set; }
-        public Token[][] Lines { get; private set; }
+        public Token?[][] Lines { get; private set; }
     }
 
     public static class FieldParser
@@ -41,7 +41,7 @@ namespace MinesweeperKata.Core
                 lines.Skip(1).Select(ParseLine).ToArray());
         }
 
-        private static Token[] ParseLine(string line)
+        private static Token?[] ParseLine(string line)
         {
             return line.Select(c =>
             {
@@ -52,9 +52,7 @@ namespace MinesweeperKata.Core
                     case '.':
                         return Token.Blank;
                     default:
-                        throw new ArgumentOutOfRangeException(
-                            "Invalid character found.  Expected either '*' or '.'", 
-                            (Exception)null);
+                        return (Token?)null;
                 }
             }).ToArray();
         }

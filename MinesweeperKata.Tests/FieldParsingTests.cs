@@ -34,7 +34,7 @@ namespace MinesweeperKata.Tests
         }
 
         [Theory, MemberData("LineData")]
-        public void ShouldParseLines(string input, Token[][] expectedLines)
+        public void ShouldParseLines(string input, Token?[][] expectedLines)
         {
             var result = FieldParser.Parse(input);
 
@@ -52,10 +52,21 @@ namespace MinesweeperKata.Tests
                         "0 0\r\n*...\r\n....\r\n.*..\r\n....",
                         new[] 
                         {
-                            new[] { Token.Mine, Token.Blank, Token.Blank, Token.Blank },
-                            new[] { Token.Blank, Token.Blank, Token.Blank, Token.Blank },
-                            new[] { Token.Blank, Token.Mine, Token.Blank, Token.Blank },
-                            new[] { Token.Blank, Token.Blank, Token.Blank, Token.Blank },
+                            new Token?[] { Token.Mine, Token.Blank, Token.Blank, Token.Blank },
+                            new Token?[] { Token.Blank, Token.Blank, Token.Blank, Token.Blank },
+                            new Token?[] { Token.Blank, Token.Mine, Token.Blank, Token.Blank },
+                            new Token?[] { Token.Blank, Token.Blank, Token.Blank, Token.Blank },
+                        }
+                    },
+                    new object[]
+                    {
+                        "0 0\r\n*.. \r\n....\r\n.*..\r\n....",
+                        new[]
+                        {
+                            new Token?[] { Token.Mine, Token.Blank, Token.Blank, (Token?)null },
+                            new Token?[] { Token.Blank, Token.Blank, Token.Blank, Token.Blank },
+                            new Token?[] { Token.Blank, Token.Mine, Token.Blank, Token.Blank },
+                            new Token?[] { Token.Blank, Token.Blank, Token.Blank, Token.Blank },
                         }
                     }
                 };
