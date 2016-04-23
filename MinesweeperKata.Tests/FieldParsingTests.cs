@@ -63,7 +63,7 @@ namespace MinesweeperKata.Tests
                         "0 0\r\n*.. \r\n....\r\n.*..\r\n....",
                         new[]
                         {
-                            new Token?[] { Token.Mine, Token.Blank, Token.Blank, (Token?)null },
+                            new Token?[] { Token.Mine, Token.Blank, Token.Blank, null },
                             new Token?[] { Token.Blank, Token.Blank, Token.Blank, Token.Blank },
                             new Token?[] { Token.Blank, Token.Mine, Token.Blank, Token.Blank },
                             new Token?[] { Token.Blank, Token.Blank, Token.Blank, Token.Blank },
