@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MinesweeperKata.Core;
 
 namespace MinesweeperKata.Console
 {
@@ -10,6 +6,17 @@ namespace MinesweeperKata.Console
     {
         static void Main(string[] args)
         {
+            if (args.Length == 0 || string.IsNullOrEmpty(args[0]))
+            {
+                System.Console.WriteLine("Input not provided");
+            }
+            else
+            {
+                var fields = FieldParser.ParseFields(args[0]);
+                var output = OutputWriter.Write(fields);
+
+                System.Console.WriteLine(output);
+            }
         }
     }
 }
