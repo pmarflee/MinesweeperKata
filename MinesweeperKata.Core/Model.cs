@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace MinesweeperKata.Core.Model
 {
@@ -43,16 +44,41 @@ namespace MinesweeperKata.Core.Model
 
     public class Field
     {
-        public Field(Header header, Symbol[][] data)
+        public Field(Header header, IEnumerable<Symbol[]> data)
         {
             Lines = header.Lines;
             Columns = header.Columns;
-            Data = data;
+            Data = new Symbol[Lines,Columns];
+
+            foreach (var pair in data.Select((line, i) => new { i, line }))
+            {
+                for (int j = 0; j < Columns; j++)
+                {
+                    Data[pair.i, j] = pair.line[j];
+                }
+            }
         }
 
         public int Lines { get; private set; }
         public int Columns { get; private set; }
-        public Symbol[][] Data { get; private set; }
+        public Symbol[,] Data { get; private set; }
+
+        public int? GetCountOfAdjacentMines(int line, int column)
+        {
+            if (Data[line, column] == Symbol.Mine) return null;
+
+            var offsets = new[] { -1, 0, 1 };
+            var positionsToCheck = from lineOffset in offsets
+                                     from columnOffset in offsets
+                                     where !(lineOffset == 0 && columnOffset == 0)
+                                     let lineToCheck = line + lineOffset
+                                     let columnToCheck = column + columnOffset
+                                     where lineToCheck >= 0 && lineToCheck < Lines
+                                     && columnToCheck >= 0 && columnToCheck < Columns
+                                     select new { Line = lineToCheck, Column = columnToCheck };
+
+            return positionsToCheck.Count(position => Data[position.Line, position.Column] == Symbol.Mine);
+        }
 
         public override bool Equals(object obj)
         {
@@ -62,8 +88,9 @@ namespace MinesweeperKata.Core.Model
 
             return Lines == other.Lines && Columns == other.Columns
                 && Data.Length == other.Data.Length
-                && Data.Zip(other.Data, (line1, line2) => new { line1, line2 })
-                .All(pair => pair.line1.SequenceEqual(pair.line2));
+                && Data.Rank == other.Data.Rank 
+                && Enumerable.Range(0, Data.Rank).All(dimension => Data.GetLength(dimension) == other.Data.GetLength(dimension)) 
+                && Data.Cast<Symbol>().SequenceEqual(other.Data.Cast<Symbol>());
         }
 
         public override int GetHashCode()

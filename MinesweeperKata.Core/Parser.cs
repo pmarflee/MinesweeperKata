@@ -21,7 +21,7 @@ namespace MinesweeperKata.Core
             from header in Header
             let fieldLineParser = CreateFieldLineParser(header.Columns)
             from data in fieldLineParser.Repeat(header.Lines)
-            select new Field(header, data.ToArray());
+            select new Field(header, data);
 
         private static readonly Parser<IEnumerable<Field>> AllFields =
             from fields in Field.Many()

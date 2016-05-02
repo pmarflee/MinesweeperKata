@@ -28,24 +28,32 @@ namespace MinesweeperKata.Tests
             }
 
             public Field Field { get; set; }
+            public int?[,] MineCounts { get; set; }
             public string Output { get; set; }
         }
 
-        private static readonly TestDataItem[] Items = new[]
+        internal static readonly TestDataItem[] Items = new[]
         {
             new TestDataItem
             {
                 HeaderInput = "4 4",
-                LineInput = new[] { "*...", "....", ".*..", "..*." },
+                LineInput = new[] { "*...", "....", ".*..", "...." },
                 Field = new Field(
                             new Header(4, 4),
-                            new[]
+                            new []
                             {
-                                new[] { Symbol.Mine, Symbol.Blank, Symbol.Blank, Symbol.Blank },
+                                new Symbol[] { Symbol.Mine, Symbol.Blank, Symbol.Blank, Symbol.Blank },
                                 new[] { Symbol.Blank, Symbol.Blank, Symbol.Blank, Symbol.Blank },
                                 new[] { Symbol.Blank, Symbol.Mine, Symbol.Blank, Symbol.Blank },
-                                new[] { Symbol.Blank, Symbol.Blank, Symbol.Mine, Symbol.Blank }
+                                new[] { Symbol.Blank, Symbol.Blank, Symbol.Blank, Symbol.Blank }
                             }),
+                MineCounts = new int?[,] 
+                {
+                    { null, 1, 0, 0 },
+                    { 2, 2, 1, 0 },
+                    { 1, null, 1, 0 },
+                    { 1, 1, 1, 0 }
+                },
                 Output = "*100\r\n2210\r\n1*10\r\n1110"
             },
             new TestDataItem
@@ -54,12 +62,18 @@ namespace MinesweeperKata.Tests
                 LineInput = new[] { "**...", ".....", ".*..." },
                 Field =new Field(
                             new Header(3, 5),
-                            new[]
+                            new []
                             {
-                                new[] { Symbol.Mine, Symbol.Mine, Symbol.Blank, Symbol.Blank, Symbol.Blank },
+                                new Symbol[] { Symbol.Mine, Symbol.Mine, Symbol.Blank, Symbol.Blank, Symbol.Blank },
                                 new[] { Symbol.Blank, Symbol.Blank, Symbol.Blank, Symbol.Blank, Symbol.Blank },
                                 new[] { Symbol.Blank, Symbol.Mine, Symbol.Blank, Symbol.Blank, Symbol.Blank },
                             }),
+                MineCounts = new int?[,]
+                {
+                    { null, null, 1, 0, 0 },
+                    { 3, 3, 2, 0, 0 },
+                    { 1, null, 1, 0, 0 }
+                },
                 Output = "**100\r\n33200\r\n1*100"
             }
         };
@@ -93,8 +107,13 @@ namespace MinesweeperKata.Tests
             get
             {
                 return from item in Items
-                       from pair in item.LineInput.Zip(item.Field.Data, (input, data) => new {input, data})
-                       select new object[] { item.Field.Columns, pair.input, pair.data };
+                       let field = item.Field
+                       let data = field.Data
+                       from lineInputPair in item.LineInput.Select((input, i) => new { i, input })
+                       let lineData = Enumerable.Range(0, field.Columns)
+                        .Select(j => data[lineInputPair.i, j])
+                        .ToArray()
+                       select new object[] { item.Field.Columns, lineInputPair.input, lineData };
             }
         }
 
