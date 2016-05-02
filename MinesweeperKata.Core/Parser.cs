@@ -17,23 +17,26 @@ namespace MinesweeperKata.Core
             where numLines > 0 && numColumns > 0
             select new Header(numLines, numColumns);
 
-        internal static readonly Parser<Symbol[]> FieldLine =
-            from chars in 
-                Parse.Char('*').Return(Symbol.Mine)
-                .Or(Parse.Char('.').Return(Symbol.Blank))
-                .Many()
-            from _ in Parse.LineTerminator
-            select chars.ToArray();
-
         internal static readonly Parser<Field> Field =
             from header in Header
-            from data in FieldLine.Many()
+            let fieldLineParser = CreateFieldLineParser(header.Columns)
+            from data in fieldLineParser.Repeat(header.Lines)
             select new Field(header, data.ToArray());
 
         private static readonly Parser<IEnumerable<Field>> AllFields =
             from fields in Field.Many()
             from terminator in Parse.String("0 0")
             select fields;
+
+        internal static Parser<Symbol[]> CreateFieldLineParser(int columns)
+        {
+            return from chars in 
+                Parse.Char('*').Return(Symbol.Mine)
+                .Or(Parse.Char('.').Return(Symbol.Blank))
+                .Repeat(columns)
+            from _ in Parse.LineTerminator
+            select chars.ToArray();
+        }
 
         public static IEnumerable<Field> ParseFields(string input)
         {

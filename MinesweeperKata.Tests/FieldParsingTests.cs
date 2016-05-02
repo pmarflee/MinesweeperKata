@@ -36,9 +36,15 @@ namespace MinesweeperKata.Tests
         }
 
         [Theory, MemberData("FieldLines")]
-        public void ShouldParseFieldLine(string input, Symbol[] expected)
+        public void ShouldParseFieldLine(int columns, string input, Symbol[] expected)
         {
-            Assert.Equal(expected, FieldParser.FieldLine.Parse(input));
+            Assert.Equal(expected, FieldParser.CreateFieldLineParser(columns).Parse(input));
+        }
+
+        [Fact]
+        public void ShouldThrowParseExceptionParseFieldLineWhenNumberOfColumnsDoesNotMatch()
+        {
+            Assert.Throws<ParseException>(() => FieldParser.CreateFieldLineParser(4).Parse("..."));
         }
 
         [Theory, MemberData("Fields")]
@@ -51,6 +57,12 @@ namespace MinesweeperKata.Tests
         public void ShouldParseFullInput(string input, IEnumerable<Field> expected)
         {
             Assert.Equal(expected, FieldParser.ParseFields(input));
+        }
+
+        [Fact]
+        public void ShouldThrowParseExceptionParseFieldWhenNumberOfLinesDoesNotMatchHeader()
+        {
+            Assert.Throws<ParseException>(() => FieldParser.Field.Parse("4 3\r\n*...\r\n....\r\n.*..\r\n..*.\r\n"));
         }
 
         public static IEnumerable<object[]> Headers
@@ -74,10 +86,10 @@ namespace MinesweeperKata.Tests
             {
                 return new[]
                 {
-                    new object[] { "*...", _fields[0].Data[0] },
-                    new object[] { "....", _fields[0].Data[1] },
-                    new object[] { ".*..", _fields[0].Data[2] },
-                    new object[] { "..*.", _fields[0].Data[3] },
+                    new object[] { 4, "*...", _fields[0].Data[0] },
+                    new object[] { 4, "....", _fields[0].Data[1] },
+                    new object[] { 4, ".*..", _fields[0].Data[2] },
+                    new object[] { 4, "..*.", _fields[0].Data[3] },
                 };
             }
         }
