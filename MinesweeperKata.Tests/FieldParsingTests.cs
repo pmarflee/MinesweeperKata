@@ -3,32 +3,12 @@ using MinesweeperKata.Core.Model;
 using System.Collections.Generic;
 using Xunit;
 using Sprache;
+using System.Linq;
 
 namespace MinesweeperKata.Tests
 {
     public class FieldParsingTests
     {
-        private static readonly Field[] _fields = new[]
-        {
-            new Field(
-                new Header(4, 4),
-                new[]
-                {
-                    new[] { Symbol.Mine, Symbol.Blank, Symbol.Blank, Symbol.Blank },
-                    new[] { Symbol.Blank, Symbol.Blank, Symbol.Blank, Symbol.Blank },
-                    new[] { Symbol.Blank, Symbol.Mine, Symbol.Blank, Symbol.Blank },
-                    new[] { Symbol.Blank, Symbol.Blank, Symbol.Mine, Symbol.Blank }
-                }),
-            new Field(
-                new Header(3, 5),
-                new[]
-                {
-                    new[] { Symbol.Mine, Symbol.Mine, Symbol.Blank, Symbol.Blank, Symbol.Blank },
-                    new[] { Symbol.Blank, Symbol.Blank, Symbol.Blank, Symbol.Blank, Symbol.Blank },
-                    new[] { Symbol.Blank, Symbol.Mine, Symbol.Blank, Symbol.Blank, Symbol.Blank },
-                })
-        };
-
         [Theory, MemberData("Headers")]
         public void ShouldParseHeader(string input, Header expected)
         {
@@ -86,10 +66,10 @@ namespace MinesweeperKata.Tests
             {
                 return new[]
                 {
-                    new object[] { 4, "*...", _fields[0].Data[0] },
-                    new object[] { 4, "....", _fields[0].Data[1] },
-                    new object[] { 4, ".*..", _fields[0].Data[2] },
-                    new object[] { 4, "..*.", _fields[0].Data[3] },
+                    new object[] { 4, "*...", TestData.Data[0].Field.Data[0] },
+                    new object[] { 4, "....", TestData.Data[0].Field.Data[1] },
+                    new object[] { 4, ".*..", TestData.Data[0].Field.Data[2] },
+                    new object[] { 4, "..*.", TestData.Data[0].Field.Data[3] },
                 };
             }
         }
@@ -98,11 +78,8 @@ namespace MinesweeperKata.Tests
         {
             get
             {
-                return new[]
-                {
-                    new object[] { "4 4\r\n*...\r\n....\r\n.*..\r\n..*.\r\n", _fields[0] },
-                    new object[] { "3 5\r\n**...\r\n.....\r\n.*...\r\n", _fields[1] }
-                };
+                return from item in TestData.Data
+                       select new object[] { item.Input, item.Field };
             }
         }
 
@@ -110,14 +87,18 @@ namespace MinesweeperKata.Tests
         {
             get
             {
-                return new[]
+                string input = string.Empty;
+                List<Field> fields = new List<Field>();
+
+                foreach (var item in TestData.Data)
                 {
-                    new object[]
-                    {
-                        "4 4\r\n*...\r\n....\r\n.*..\r\n..*.\r\n3 5\r\n**...\r\n.....\r\n.*...\r\n0 0",
-                        _fields
-                    }
-                };
+                    input += item.Input;
+                    fields.Add(item.Field);
+                }
+
+                input += "0 0";
+
+                return new[] { new object[] { input, fields } };
             }
         }
     }
