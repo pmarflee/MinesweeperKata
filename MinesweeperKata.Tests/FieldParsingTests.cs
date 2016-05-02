@@ -1,73 +1,109 @@
 ﻿using MinesweeperKata.Core;
-using MinesweeperKata.Core.Enums;
+using MinesweeperKata.Core.Model;
 using System.Collections.Generic;
 using Xunit;
-using Xunit.Extensions;
+using Sprache;
 
 namespace MinesweeperKata.Tests
 {
     public class FieldParsingTests
     {
-        [Theory]
-        [InlineData("4 4", 4)]
-        [InlineData("3 4", 3)]
-        [InlineData("2 4", 2)]
-        [InlineData("4", 4)]
-        [InlineData("", 0)]
-        public void ShouldParseNumberOfLines(string input, int expectedLines)
+        private static readonly Field[] _fields = new[]
         {
-            var result = FieldParser.Parse(input);
+            new Field(
+                new Header(4, 4),
+                new[]
+                {
+                    new[] { Symbol.Mine, Symbol.Blank, Symbol.Blank, Symbol.Blank },
+                    new[] { Symbol.Blank, Symbol.Blank, Symbol.Blank, Symbol.Blank },
+                    new[] { Symbol.Blank, Symbol.Mine, Symbol.Blank, Symbol.Blank },
+                    new[] { Symbol.Blank, Symbol.Blank, Symbol.Mine, Symbol.Blank }
+                }),
+            new Field(
+                new Header(3, 5),
+                new[]
+                {
+                    new[] { Symbol.Mine, Symbol.Mine, Symbol.Blank, Symbol.Blank, Symbol.Blank },
+                    new[] { Symbol.Blank, Symbol.Blank, Symbol.Blank, Symbol.Blank, Symbol.Blank },
+                    new[] { Symbol.Blank, Symbol.Mine, Symbol.Blank, Symbol.Blank, Symbol.Blank },
+                })
+        };
 
-            Assert.Equal(expectedLines, result.NumberOfLines);
+        [Theory, MemberData("Headers")]
+        public void ShouldParseHeader(string input, Header expected)
+        {
+            Assert.Equal(expected, FieldParser.Header.Parse(input));
         }
 
-        [Theory]
-        [InlineData("4 4", 4)]
-        [InlineData("4 3", 3)]
-        [InlineData("4 2", 2)]
-        [InlineData("2", 0)]
-        public void ShouldParseNumberOfColumns(string input, int expectedColumns)
+        [Theory, MemberData("FieldLines")]
+        public void ShouldParseFieldLine(string input, Symbol[] expected)
         {
-            var result = FieldParser.Parse(input);
-
-            Assert.Equal(expectedColumns, result.NumberOfColumns);
+            Assert.Equal(expected, FieldParser.FieldLine.Parse(input));
         }
 
-        [Theory, MemberData("LineData")]
-        public void ShouldParseLines(string input, Token?[][] expectedLines)
+        [Theory, MemberData("Fields")]
+        public void ShouldParseField(string input, Field expected)
         {
-            var result = FieldParser.Parse(input);
-
-            Assert.Equal(expectedLines, result.Lines);
+            Assert.Equal(expected, FieldParser.Field.Parse(input));
         }
 
-        public static IEnumerable<object[]> LineData
+        [Theory, MemberData("FullInput")]
+        public void ShouldParseFullInput(string input, IEnumerable<Field> expected)
+        {
+            Assert.Equal(expected, FieldParser.ParseFields(input));
+        }
+
+        public static IEnumerable<object[]> Headers
         {
             get
             {
                 return new[]
                 {
-                    new object[] 
-                    {
-                        "0 0\r\n*...\r\n....\r\n.*..\r\n....",
-                        new[] 
-                        {
-                            new Token?[] { Token.Mine, Token.Blank, Token.Blank, Token.Blank },
-                            new Token?[] { Token.Blank, Token.Blank, Token.Blank, Token.Blank },
-                            new Token?[] { Token.Blank, Token.Mine, Token.Blank, Token.Blank },
-                            new Token?[] { Token.Blank, Token.Blank, Token.Blank, Token.Blank },
-                        }
-                    },
+                    new object[] { "4 4\r\n", new Header(4, 4) },
+                    new object[] { "3 4\r\n", new Header(3, 4) },
+                    new object[] { "2 4\r\n", new Header(2, 4) },
+                    new object[] { "4 3\r\n", new Header(4, 3) },
+                    new object[] { "4 2\r\n", new Header(4, 2) }
+                };
+            }
+        }
+
+        public static IEnumerable<object[]> FieldLines
+        {
+            get
+            {
+                return new[]
+                {
+                    new object[] { "*...", _fields[0].Data[0] },
+                    new object[] { "....", _fields[0].Data[1] },
+                    new object[] { ".*..", _fields[0].Data[2] },
+                    new object[] { "..*.", _fields[0].Data[3] },
+                };
+            }
+        }
+
+        public static IEnumerable<object[]> Fields
+        {
+            get
+            {
+                return new[]
+                {
+                    new object[] { "4 4\r\n*...\r\n....\r\n.*..\r\n..*.\r\n", _fields[0] },
+                    new object[] { "3 5\r\n**...\r\n.....\r\n.*...\r\n", _fields[1] }
+                };
+            }
+        }
+
+        public static IEnumerable<object[]> FullInput
+        {
+            get
+            {
+                return new[]
+                {
                     new object[]
                     {
-                        "0 0\r\n*.. \r\n....\r\n.*..\r\n....",
-                        new[]
-                        {
-                            new Token?[] { Token.Mine, Token.Blank, Token.Blank, null },
-                            new Token?[] { Token.Blank, Token.Blank, Token.Blank, Token.Blank },
-                            new Token?[] { Token.Blank, Token.Mine, Token.Blank, Token.Blank },
-                            new Token?[] { Token.Blank, Token.Blank, Token.Blank, Token.Blank },
-                        }
+                        "4 4\r\n*...\r\n....\r\n.*..\r\n..*.\r\n3 5\r\n**...\r\n.....\r\n.*...\r\n0 0",
+                        _fields
                     }
                 };
             }
