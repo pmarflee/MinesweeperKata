@@ -135,5 +135,28 @@ namespace MinesweeperKata.Tests
                 return new[] { new object[] { input, fields } };
             }
         }
+
+        public static IEnumerable<object[]> FullOutput
+        {
+            get
+            {
+                var builder = new StringBuilder();
+                List<Field> fields = new List<Field>();
+
+                for (var i = 0; i < Items.Length; i++)
+                {
+                    builder.AppendLine(string.Format("Field #{0}:", i + 1));
+                    builder.Append(Items[i].Output);
+                    if (i < Items.Length - 1)
+                    {
+                        builder.AppendLine();
+                        builder.AppendLine();
+                    }
+                    fields.Add(Items[i].Field);
+                }
+
+                return new[] { new object[] { fields, builder.ToString() } };
+            }
+        }
     }
 }
